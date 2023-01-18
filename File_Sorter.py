@@ -89,6 +89,9 @@ def unpack_archives(path_to_archives):
 
 
 if __name__ == '__main__':
+    if len(argv) != 2:
+        print('You must write path to folder to sort as argument!')
+        quit()
     # path to folder from last argument cmd
     path_folder_for_sort = argv[-1]
     # ignore list with names of folders to be ignored
