@@ -151,8 +151,8 @@ if __name__ == '__main__':
                 groups_of_files[name_group].append(file)
     # Calling functions
     create_folders_from_groups(path_folder_for_sort, groups_of_format)
-    delete_empty_folders(folders_paths)
     sort_files(files_paths, groups_of_files)
+    delete_empty_folders(folders_paths)
     unpack_archives(Path(path_folder_for_sort))
     # Data output
     for name, list_of_formats in groups_of_files.items():
