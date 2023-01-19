@@ -167,3 +167,4 @@ if __name__ == '__main__':
         print(f'In category {name} files: {list_of_formats}')
     print('Known formats: ', ', '.join(set_of_formats))
     print('Unknown formats: ', ', '.join(set_of_unknown_formats))
+    
