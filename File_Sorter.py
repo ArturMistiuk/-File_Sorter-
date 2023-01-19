@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import shutil
 
 from os.path import split
@@ -10,7 +11,8 @@ from sys import argv
 def create_folders_from_groups(path_to_folder, folder_names):
     """This func creates folders for sorted files"""
     for folder_for_sorted in folder_names.keys():
-        os.makedirs(path_to_folder + '/' + folder_for_sorted, exist_ok=True)
+
+        os.makedirs(path_to_folder + '\\' + folder_for_sorted, exist_ok=True)
 
 
 def delete_empty_folders(paths_to_folders):
@@ -70,18 +72,18 @@ def sort_files(paths_to_files, file_groups):
         for name_of_group, formats_list in file_groups.items():
             # check if folder in ignore list
             if split(path_to_file)[-1] in formats_list and previously_folder not in ignore_list:
-                if Path(path_to_file) != Path(path_folder_for_sort + '/' + name_of_group + '/' + split(path_to_file)[-1]):
-                    shutil.move(path_to_file, path_folder_for_sort + '/' + name_of_group + '/')
+                if Path(path_to_file) != Path(path_folder_for_sort + '\\' + name_of_group + '\\' + split(path_to_file)[-1]):
+                    shutil.move(path_to_file, path_folder_for_sort + '\\' + name_of_group + '\\')
 
 
 def unpack_archives(path_to_archives):
     # path to folder 'archives' with sorted archives
-    path_to_archives = Path(str(path_to_archives) + '/' + 'archives')
+    path_to_archives = Path(str(path_to_archives) + '\\' + 'archives')
     for archive in path_to_archives.rglob('*'):
         # checks if format is known in archive formats
         if archive.name.split('.')[-1].upper() in groups_of_format['archives']:
             # gets name with archive name for folder
-            path_for_unpack = Path(str(path_to_archives) + '/' + archive.name.split('.')[0])
+            path_for_unpack = Path(str(path_to_archives) + '\\' + archive.name.split('.')[0])
             # creates folder with name for folder
             os.mkdir(path_for_unpack)
             # unpack archive to created folder
@@ -93,7 +95,8 @@ if __name__ == '__main__':
         print('You must write path to folder to sort as argument!')
         quit()
     # path to folder from last argument cmd
-    path_folder_for_sort = argv[-1]
+    path_folder_for_sort = sys.argv[1]
+    print(path_folder_for_sort)
     # ignore list with names of folders to be ignored
     ignore_list = ['images', 'video', 'documents', 'audio', 'archives']
 
@@ -132,10 +135,19 @@ if __name__ == '__main__':
         for known_formats in groups_of_format.values():
             if str(file_for_rename).split('.')[-1].upper() in known_formats:
                 new_name = normalize(file_for_rename.name)
+                print(file_for_rename)
+                print(split(file_for_rename)[0])
+                print(new_name)
                 os.rename(file_for_rename, split(file_for_rename)[0] + '\\' + new_name)
     # Rename all folders
-    for folder_for_rename in folders_paths:
-        new_name = normalize(str(folder_for_rename.name))
+    list_of_paths = [str(folder_path_for_sort) for folder_path_for_sort in folders_paths]
+    list_of_paths = reversed(sorted(list_of_paths, key=len))            # sorted paths by len to sort in correctly turn
+    for folder_for_rename in list_of_paths:
+        new_name = normalize(str(Path(folder_for_rename).name))
+        print(folders_paths, '!')
+        print(folder_for_rename,'*')
+        print(str(split(folder_for_rename)[0]),'**')
+        print(new_name.split('.')[0],'***')
         os.rename(folder_for_rename, str(split(folder_for_rename)[0]) + '\\' + new_name.split('.')[0])
     # Update lists with names and paths to files and folders after renaming
     files_names, files_paths = parse_files(path_folder_for_sort)
