@@ -96,7 +96,6 @@ if __name__ == '__main__':
         quit()
     # path to folder from last argument cmd
     path_folder_for_sort = sys.argv[1]
-    print(path_folder_for_sort)
     # ignore list with names of folders to be ignored
     ignore_list = ['images', 'video', 'documents', 'audio', 'archives']
 
@@ -135,19 +134,12 @@ if __name__ == '__main__':
         for known_formats in groups_of_format.values():
             if str(file_for_rename).split('.')[-1].upper() in known_formats:
                 new_name = normalize(file_for_rename.name)
-                print(file_for_rename)
-                print(split(file_for_rename)[0])
-                print(new_name)
                 os.rename(file_for_rename, split(file_for_rename)[0] + '\\' + new_name)
     # Rename all folders
     list_of_paths = [str(folder_path_for_sort) for folder_path_for_sort in folders_paths]
     list_of_paths = reversed(sorted(list_of_paths, key=len))            # sorted paths by len to sort in correctly turn
     for folder_for_rename in list_of_paths:
         new_name = normalize(str(Path(folder_for_rename).name))
-        print(folders_paths, '!')
-        print(folder_for_rename,'*')
-        print(str(split(folder_for_rename)[0]),'**')
-        print(new_name.split('.')[0],'***')
         os.rename(folder_for_rename, str(split(folder_for_rename)[0]) + '\\' + new_name.split('.')[0])
     # Update lists with names and paths to files and folders after renaming
     files_names, files_paths = parse_files(path_folder_for_sort)
@@ -167,4 +159,3 @@ if __name__ == '__main__':
         print(f'In category {name} files: {list_of_formats}')
     print('Known formats: ', ', '.join(set_of_formats))
     print('Unknown formats: ', ', '.join(set_of_unknown_formats))
-    
