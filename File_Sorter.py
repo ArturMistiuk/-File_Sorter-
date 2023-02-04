@@ -1,4 +1,5 @@
-""" This is a script that will parse the specified folder.
+"""
+    This is a script that will parse the specified folder.
     The script takes one argument when it is run - this is the name of the folder in which it will sort.
     As a result of the work you get:
         List of files in each category (music, video, photo, etc.)
@@ -9,6 +10,7 @@
         Files with a known format are sorted.
         Files with unknown extensions remain unchanged.
 """
+
 
 import os
 import re
@@ -50,7 +52,7 @@ def normalize(item_name):
     return str(item_name).translate(table)
 
 
-def parse_files(folder_path):
+def parse_files(folder_path, ignore_list):
     """This func iterates through the files and returns the names and paths of all files in the argument-folder"""
     path = Path(folder_path)
     file_names = []
@@ -65,6 +67,7 @@ def parse_files(folder_path):
 
 def parse_folders(folder_path):
     """This func iterates through the folders and returns the names and paths of all folders in the argument-folder"""
+    ignore_list = ['images', 'video', 'documents', 'audio', 'archives']
     path = Path(folder_path)
     names_of_folders = []
     set_of_paths = set()
@@ -76,7 +79,7 @@ def parse_folders(folder_path):
     return names_of_folders, set_of_paths
 
 
-def sort_files(paths_to_files, file_groups):
+def sort_files(paths_to_files, file_groups, path_folder_for_sort, ignore_list):
     """This func moves all files to folders for sorted"""
     for path_to_file in paths_to_files:
         # get previously folder (/ARCHIVES/file.rar)
@@ -88,7 +91,7 @@ def sort_files(paths_to_files, file_groups):
                     shutil.move(path_to_file, path_folder_for_sort + '\\' + name_of_group + '\\')
 
 
-def unpack_archives(path_to_archives):
+def unpack_archives(path_to_archives, groups_of_format):
     # path to folder 'archives' with sorted archives
     path_to_archives = Path(str(path_to_archives) + '\\' + 'archives')
     for archive in path_to_archives.rglob('*'):
@@ -102,7 +105,7 @@ def unpack_archives(path_to_archives):
             shutil.unpack_archive(archive, path_for_unpack, archive.name.split('.')[-1])
 
 
-if __name__ == '__main__':
+def main():
     if len(argv) != 2:
         print('You must write path to folder to sort as argument!')
         quit()
@@ -127,10 +130,10 @@ if __name__ == '__main__':
         'archives': [],
     }
 
-    set_of_formats = set()                      # create set for known formats of files
-    set_of_unknown_formats = set()              # create set for unknown formats of files
+    set_of_formats = set()  # create set for known formats of files
+    set_of_unknown_formats = set()  # create set for unknown formats of files
     # Create lists with names and paths to files and folders
-    files_names, files_paths = parse_files(path_folder_for_sort)
+    files_names, files_paths = parse_files(path_folder_for_sort, ignore_list)
     folders_names, folders_paths = parse_folders(path_folder_for_sort)
 
     # Fill sets of known and unknown formats
@@ -149,12 +152,12 @@ if __name__ == '__main__':
                 os.rename(file_for_rename, split(file_for_rename)[0] + '\\' + new_name)
     # Rename all folders
     list_of_paths = [str(folder_path_for_sort) for folder_path_for_sort in folders_paths]
-    list_of_paths = reversed(sorted(list_of_paths, key=len))            # sorted paths by len to sort in correctly turn
+    list_of_paths = reversed(sorted(list_of_paths, key=len))  # sorted paths by len to sort in correctly turn
     for folder_for_rename in list_of_paths:
         new_name = normalize(str(Path(folder_for_rename).name))
         os.rename(folder_for_rename, str(split(folder_for_rename)[0]) + '\\' + new_name.split('.')[0])
     # Update lists with names and paths to files and folders after renaming
-    files_names, files_paths = parse_files(path_folder_for_sort)
+    files_names, files_paths = parse_files(path_folder_for_sort, ignore_list)
     folders_names, folders_paths = parse_folders(path_folder_for_sort)
     # Fill list with file names and formats of files
     for file in files_names:
@@ -163,11 +166,15 @@ if __name__ == '__main__':
                 groups_of_files[name_group].append(file)
     # Calling functions
     create_folders_from_groups(path_folder_for_sort, groups_of_format)
-    sort_files(files_paths, groups_of_files)
+    sort_files(files_paths, groups_of_files, path_folder_for_sort, ignore_list)
     delete_empty_folders(folders_paths)
-    unpack_archives(Path(path_folder_for_sort))
+    unpack_archives(Path(path_folder_for_sort), groups_of_format)
     # Data output
     for name, list_of_formats in groups_of_files.items():
         print(f'In category {name} files: {list_of_formats}')
     print('Known formats: ', ', '.join(set_of_formats))
     print('Unknown formats: ', ', '.join(set_of_unknown_formats))
+
+
+if __name__ == '__main__':
+    main()
